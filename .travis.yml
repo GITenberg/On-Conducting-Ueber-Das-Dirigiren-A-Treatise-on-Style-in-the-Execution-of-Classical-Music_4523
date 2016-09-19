@@ -1,0 +1,61 @@
+sudo: required
+dist: trusty
+language: ruby
+
+before_install:
+before_install:
+- gem install asciidoctor -v 1.5.2
+- gem install tilt
+- sudo pip install git+https://github.com/gitenberg-dev/gitberg
+- sudo pip install pillow
+- sudo pip install cssutils
+- sudo pip install docutils
+- sudo pip install roman
+- sudo pip install git+https://github.com/gitenberg-dev/pg-epubmaker
+script:
+- VERSION=`ruby -e "require 'yaml'; meta = YAML.load_file('metadata.yaml'); puts meta['_version'];"`
+- git clone https://github.com/gitenberg-dev/asciidoctor-htmlbook.git
+- sudo pip install -r asciidoctor-htmlbook/gitberg-machine/requirements.txt
+
+- /usr/bin/python -c "from gitenberg import travis; travis.build_epub()"
+- ebook-convert book.epub book.mobi
+- xvfb-run ebook-convert book.epub book.pdf
+branches:
+  only:
+  - master
+notifications:
+  webhooks:
+    urls:
+      - https://unglue.it/api/travisci/webhook
+    on_success: always
+    on_failure: never
+    on_start: never
+deploy:
+  skip_cleanup: true
+  provider: releases
+  api_key:
+    secure: dNYAHQNLprlcG+etm/zo8Kmdzqmn8/uW4G6vTSvuF5pQyNVjrvJqiXCSIHX+xACuXgEzMEel1Pm+cllXMkytgiovgcB7hVCKEsgodo8kjxB6Wb3wKTuE/d6E/pK/OnKUr4M+qFvbJNxlpnR6th/7akcK0a3xTiY+T9FZHBjqkZVmx80Ir4J48AHV66GQ2JwldjlTgaluw0iP79mE3zCeV+h6SWiVYfgKkK3iyvXL0C+zLuWfk4OqrIUgLOIdD2rSTUBZUgnaV6roPTDsZ4nmQt0UsJJX70JCZdXbct3pbrnIaaDZTtS2BOSU7txfWUn/0pPvLnwg4qD5cupJI8ibjy4nqniNnx0/hEVm+F50b3Tx8DU3VHZw8pX/Wn8L/SyeqD6rocGu6thkyNFHYeA1egVtF5iOqjNc2zJrufUFhTLLncLfgZLLNNqKFQgDOtKRGSyZ4FcayFyxjfBs/2nOmKJ/bGyMAr0wcqytkjmgmR54N5fwT+90fbu6X7Kb0UudsYPZkInw2aVtU8yyPFpsRDudUz0r/jMq21HTVBvoXLeUSezqZ9GmxxovoX4cGolbTK6uSqxvM8Mq3tqJ3uaW5b7jG3Du6PUv08Bbhj4W9mkKkSVNWV6K4eMJN6WLQ2AwQ/fBn64AHPnNwFz7iQe3uw6zEGO5JUFAQqEcgpKbhOI=
+  file:
+    - book.epub
+    - book.mobi
+    - book.pdf
+  "on":
+    repo: GITenberg/On-Conducting-Ueber-Das-Dirigiren-A-Treatise-on-Style-in-the-Execution-of-Classical-Music_4523
+addons:
+  apt:
+    packages:
+    - xsltproc
+    - xvfb
+    - calibre
+    - python-pip
+    - git
+    - python-dev
+    - libjpeg-dev
+    - libpng-dev
+    - libfreetype6
+    - libfreetype6-dev
+    - zlib1g-dev
+    - python-lxml
+    - libxml2-dev
+    - libxslt1-dev
+    - tidy
